@@ -1,0 +1,3 @@
+rootProject.name='HungrySharkScanDemo'
+include ':app'
+include ':openCVLibrary347'
