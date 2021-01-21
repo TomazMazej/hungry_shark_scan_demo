@@ -1,22 +1,22 @@
 package com.mazej.hungrysharkscandemo;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.View;
 import android.widget.ImageView;
 
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -24,31 +24,71 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.ByteArrayInputStream;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private ImageView img;
-    private static String TAG = "MainActivity";
-
-    static{
-        if(OpenCVLoader.initDebug()){
-            Log.d(TAG, "Deluje");
-        }
-        else{
-            Log.d(TAG, "Ne deluje");
-        }
-    }
+    private ImageView showcase;
+    private String currentImagePath = null;
+    private static final int IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getSupportActionBar().hide();
+        OpenCVLoader.initDebug();
         setContentView(R.layout.activity_main);
-        img = findViewById(R.id.imgView);
 
-        Mat src = Imgcodecs.imread(getApplicationContext().getFilesDir()+"/shark_test.jpg");
+        showcase = findViewById(R.id.showcase);
+    }
+
+    //zajame sliko
+    public void captureImage(View view){
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(cameraIntent.resolveActivity(getPackageManager()) != null){
+            File imageFile = null;
+
+            try{
+                imageFile = getImageFile();
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+
+            if(imageFile != null){
+                Uri imageUri = FileProvider.getUriForFile(this, "com.example.android.fileprovider", imageFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(cameraIntent, IMAGE_REQUEST);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(IMAGE_REQUEST == requestCode && resultCode == RESULT_OK){
+            findContours();
+        }
+    }
+
+    //v spremenljivko currentImagePath shrani pot do zajete slike
+    private File getImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date());
+        String imageName = "jpg_"+timeStamp+"_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        File imageFile = File.createTempFile(imageName, ".jpg", storageDir);
+        currentImagePath = imageFile.getAbsolutePath();
+        return imageFile;
+    }
+
+    //najde konture in na koncu prikaze sliko
+    public void findContours(){
+        //Mat src = Imgcodecs.imread(getApplicationContext().getFilesDir()+"/shark.jpg");
+        Mat src = Imgcodecs.imread(currentImagePath);
         Mat gray = new Mat();
         Mat noiseless = new Mat();
         Mat edges = new Mat();
@@ -76,7 +116,11 @@ public class MainActivity extends AppCompatActivity {
 
         Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/contures.jpg",drawing);
 
-        src.setTo(drawing);
+        //src.setTo(drawing);
         Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.jpg",drawing);
+
+        //File imgFile = new File("/data/user/0/com.mazej.hungrysharkscandemo/files/final.jpg");
+        Bitmap myBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir()+"/final.jpg");
+        showcase.setImageBitmap(myBitmap);
     }
 }
