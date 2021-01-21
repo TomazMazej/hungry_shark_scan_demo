@@ -5,10 +5,10 @@
 5    android:versionName="3.4.7" >
 6
 7    <uses-sdk
-7-->D:\FERI-RIT\3. letnik\RRI\hungry_shark_scan_demo\openCVLibrary347\src\main\AndroidManifest.xml:7:5-47
+7-->C:\Feri\Projekt\scan app\openCVLibrary347\src\main\AndroidManifest.xml:7:5-47
 8        android:minSdkVersion="8"
-8-->D:\FERI-RIT\3. letnik\RRI\hungry_shark_scan_demo\openCVLibrary347\src\main\AndroidManifest.xml:7:5-47
+8-->C:\Feri\Projekt\scan app\openCVLibrary347\src\main\AndroidManifest.xml:7:5-47
 9        android:targetSdkVersion="28" />
-9-->D:\FERI-RIT\3. letnik\RRI\hungry_shark_scan_demo\openCVLibrary347\src\main\AndroidManifest.xml:7:15-44
+9-->C:\Feri\Projekt\scan app\openCVLibrary347\src\main\AndroidManifest.xml:7:15-44
 10
 11</manifest>

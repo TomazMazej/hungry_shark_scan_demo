@@ -43,7 +43,10 @@ public class MainActivity extends AppCompatActivity {
         OpenCVLoader.initDebug();
         setContentView(R.layout.activity_main);
 
+        //TODO: make it null
+        currentImagePath = getApplicationContext().getFilesDir()+"/shark_test.jpg";
         showcase = findViewById(R.id.showcase);
+        findContours();
     }
 
     //zajame sliko
@@ -97,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
         Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/gray.jpg", gray);
 
-        Imgproc.blur(gray, noiseless, new Size(3, 3));
+        noiseless = gray;
+        //Imgproc.blur(gray, noiseless, new Size(1, 1));
 
         Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/noiseless.jpg",noiseless);
 
@@ -108,19 +112,18 @@ public class MainActivity extends AppCompatActivity {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-        Mat drawing = Mat.zeros(edges.size(), CvType.CV_8UC3);
+        Mat drawing = Mat.ones(edges.size(), CvType.CV_8UC3);
+        Imgproc.cvtColor(drawing,drawing, Imgproc.COLOR_BGR2BGRA);
+        drawing = drawing.setTo(new Scalar(0,0,0,0));
         for (int i = 0; i < contours.size(); i++) {
-            Scalar color = new Scalar(255, 255, 255);
+            Scalar color = new Scalar(0, 0, 0, 255);
             Imgproc.drawContours(drawing, contours, i, color, 2, Core.LINE_8, hierarchy, 0, new Point());
         }
-
-        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/contures.jpg",drawing);
-
         //src.setTo(drawing);
-        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.jpg",drawing);
+        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.png",drawing);
 
         //File imgFile = new File("/data/user/0/com.mazej.hungrysharkscandemo/files/final.jpg");
-        Bitmap myBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir()+"/final.jpg");
+        Bitmap myBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir()+"/final.png");
         showcase.setImageBitmap(myBitmap);
     }
 }
