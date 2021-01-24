@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //TODO: make it null
-        currentImagePath = getApplicationContext().getFilesDir()+"/test01.jpg";
+        currentImagePath = getApplicationContext().getFilesDir()+"/test02.jpg";
         showcase = findViewById(R.id.showcase);
         findContours();
     }
@@ -119,7 +119,9 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
         Imgproc.blur(gray, noiseless, new Size(3, 3));
 
-        Imgproc.Canny(noiseless,edges,220,255);
+        double x = Core.mean(noiseless).val[0];
+        System.out.println(x);
+        Imgproc.Canny(noiseless,edges,x,255);
 
         Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/edges.jpg",edges);
 
@@ -127,12 +129,12 @@ public class MainActivity extends AppCompatActivity {
         Mat hierarchy = new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
         Mat drawing = Mat.zeros(edges.size(), CvType.CV_8UC3);
-        //Imgproc.cvtColor(drawing,drawing, Imgproc.COLOR_BGR2BGRA);
-        //drawing = drawing.setTo(new Scalar(0,0,0));
+        Imgproc.cvtColor(drawing,drawing, Imgproc.COLOR_BGR2BGRA);
+        drawing = drawing.setTo(new Scalar(0,0,0,0));
         MatOfPoint2f appCurve = new MatOfPoint2f();
         Rect max = new Rect();
         for (int i = 0; i < contours.size(); i++) {
-            Scalar color = new Scalar(255,255,255);
+            Scalar color = new Scalar(255,255,255,255);
             Imgproc.drawContours(drawing, contours, i, color, -1);
             MatOfPoint2f cont2f = new MatOfPoint2f(contours.get(i).toArray());
             double appDistance = Imgproc.arcLength(cont2f, true) * 0.02;
@@ -155,19 +157,41 @@ public class MainActivity extends AppCompatActivity {
                 new Point(max.x+max.width,max.y+max.height),
                 new Scalar(255,0,0),3);
         //src.setTo(drawing);
+
+
         Mat mask = new Mat(drawing, max);
         Mat roi = new Mat(src,max);
-        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/roi.png",roi);
+
+        Imgproc.cvtColor(roi,roi, Imgproc.COLOR_BGR2BGRA);
 
         Mat end = new Mat();
-
         Core.bitwise_and(roi,mask,end);
+
+        Size orientation = end.size();
+        orientation.width /= 2;
+
+        Rect scope = new Rect();
+        scope.width = (int) orientation.width;
+        scope.height = (int) orientation.height;
+
+        Mat left = new Mat(end, scope);
+
+        scope.x += scope.width;
+        Mat right = new Mat(end, scope);
+
+        Mat test = new Mat();
+        if( Core.mean(right).val[0] > Core.mean(left).val[0]){
+            test = right;
+        }else{
+            test = left;
+        }
+        //Core.bitwise_and(roi,mask,end);
         //Imgproc.threshold(roi,end,100,255,2);
 
         //Imgproc.filter2D(conv,end,-1,kernel);
         //Mat filled = new Mat();
         //Imgproc.floodFill(end, filled, new Point(0,0),new Scalar(255));
-        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.png",end);
+        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.png",test);
 
         //File imgFile = new File("/data/user/0/com.mazej.hungrysharkscandemo/files/final.jpg");
         Bitmap myBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir()+"/final.png");
