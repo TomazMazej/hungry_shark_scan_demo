@@ -46,10 +46,10 @@ public class MainActivity extends AppCompatActivity {
         this.getSupportActionBar().hide();
         OpenCVLoader.initDebug();
         setContentView(R.layout.activity_main);
-
-        //TODO: make it null
-        currentImagePath = getApplicationContext().getFilesDir()+"/test02.jpg";
         showcase = findViewById(R.id.showcase);
+
+        //TODO: comment this 2 lines when testing on real device
+        currentImagePath = getApplicationContext().getFilesDir()+"/s1.jpg";
         findContours();
     }
 
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
     //najde konture in na koncu prikaze sliko
     public void findContours(){
-        //Mat src = Imgcodecs.imread(getApplicationContext().getFilesDir()+"/shark.jpg");
         Mat src = Imgcodecs.imread(currentImagePath);
         Mat conv = new Mat();
         Mat gray = new Mat();
@@ -156,8 +155,6 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.rectangle(drawing, new Point(max.x,max.y),
                 new Point(max.x+max.width,max.y+max.height),
                 new Scalar(255,0,0),3);
-        //src.setTo(drawing);
-
 
         Mat mask = new Mat(drawing, max);
         Mat roi = new Mat(src,max);
@@ -191,15 +188,9 @@ public class MainActivity extends AppCompatActivity {
             Core.flip(end,other,1);
             Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/right.png",other);
         }
-        //Core.bitwise_and(roi,mask,end);
-        //Imgproc.threshold(roi,end,100,255,2);
 
-        //Imgproc.filter2D(conv,end,-1,kernel);
-        //Mat filled = new Mat();
-        //Imgproc.floodFill(end, filled, new Point(0,0),new Scalar(255));
         Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.png",other);
 
-        //File imgFile = new File("/data/user/0/com.mazej.hungrysharkscandemo/files/final.jpg");
         Bitmap myBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir()+"/final.png");
         showcase.setImageBitmap(myBitmap);
     }
