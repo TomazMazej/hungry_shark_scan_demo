@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
         Mat mask = new Mat(drawing, max);
         Mat roi = new Mat(src,max);
+        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/mask.jpg",mask);
 
         Imgproc.cvtColor(roi,roi, Imgproc.COLOR_BGR2BGRA);
 
@@ -179,11 +180,16 @@ public class MainActivity extends AppCompatActivity {
         scope.x += scope.width;
         Mat right = new Mat(end, scope);
 
-        Mat test = new Mat();
+        Mat other = new Mat();
+
         if( Core.mean(right).val[0] > Core.mean(left).val[0]){
-            test = right;
+            Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/right.png",end);
+            Core.flip(end,other,1);
+            Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/left.png",other);
         }else{
-            test = left;
+            Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/left.png",end);
+            Core.flip(end,other,1);
+            Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/right.png",other);
         }
         //Core.bitwise_and(roi,mask,end);
         //Imgproc.threshold(roi,end,100,255,2);
@@ -191,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         //Imgproc.filter2D(conv,end,-1,kernel);
         //Mat filled = new Mat();
         //Imgproc.floodFill(end, filled, new Point(0,0),new Scalar(255));
-        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.png",test);
+        Imgcodecs.imwrite(getApplicationContext().getFilesDir()+"/final.png",other);
 
         //File imgFile = new File("/data/user/0/com.mazej.hungrysharkscandemo/files/final.jpg");
         Bitmap myBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir()+"/final.png");
