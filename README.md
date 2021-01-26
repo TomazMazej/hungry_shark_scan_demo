@@ -8,5 +8,5 @@
 * It uses openCV library to find contours
 
 ## Pictures
-![Image1](/pivtures/hsscan.png)
-![Image2](/pivtures/s3.jpg)
+![Image1](/pictures/hsscan.png)
+![Image2](/pictures/s3.jpg)
